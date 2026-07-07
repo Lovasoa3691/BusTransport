@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id_user       Int      @id @default(autoincrement())
+  username      String   @db.VarChar(50)
+  f_name        String   @db.VarChar(20)
+  l_name        String   @db.VarChar(20)
+  phone_number  String   @db.VarChar(15)
+  email         String   @db.VarChar(50)
+  password      String   @db.VarChar(255)
+  status        String   @db.VarChar(20)
+  role          String   @db.VarChar(20)
+  
+  // Champs spécifiques au Driver (Héritage Single Table dans votre ERD)
+  id_driver     Int?
+  permit        String?  @db.VarChar(3)
+  age           Int?
+  experience    String?  @db.VarChar(20)
+  status_driver String?  @db.VarChar(10)
+  discriminator String   @db.VarChar(50)
+
+  // Relations
+  controlledBuses Bus[]    @relation("UserControlBus")
+  drivenBuses     Bus[]    @relation("DriverDriveBus")
+  verifiedTickets Ticket[] @relation("DriverVerifyTicket")
+}
+
+model Bus {
+  id_bus       Int      @id @default(autoincrement())
+  admin_id Int // Contrôleur / Gestionnaire
+  driver_id  Int // Chauffeur / Driver
+  registration String   @db.VarChar(12)
+  capacity     Int
+  image        String   @db.VarChar(255)
+  status_bus   String   @db.VarChar(15)
+
+  // Relations parentes
+  controller   User     @relation("UserControlBus", fields: [admin_id], references: [id_user])
+  driver       User     @relation("DriverDriveBus", fields: [driver_id], references: [id_user])
+
+  // Relations enfants
+  lines        Line[]
+  incomes      Income[]
+}
+
+model Line {
+  id_line        Int      @id @default(autoincrement())
+  bus_id      Int
+  line_name      String   @db.VarChar(255)
+  description    String   @db.VarChar(255)
+  latitude_line  Int
+  longitude_line Int
+
+  // Relations parentes
+  bus            Bus      @relation(fields: [bus_id], references: [id_bus])
+
+  // Relations enfants
+  terminuses     Terminus[]
+  tripRequests   TripRequest[]
+}
+
+model Terminus {
+  id_term        Int      @id @default(autoincrement())
+  line_id    Int
+  code_term      String   @db.VarChar(255)
+  latitude       String   @db.VarChar(255)
+  longitude      String   @db.VarChar(255)
+  name_term      String   @db.VarChar(255)
+
+  // Relations parentes
+  line           Line     @relation(fields: [line_id], references: [id_line])
+
+  // Relations enfants
+  tripRequests   TripRequest[]
+}
+
+model TripRequest {
+  id_req         Int      @id @default(autoincrement())
+  terminus_id Int
+  line_id    Int
+  request_time   String   @db.VarChar(255)
+  latitude       String   @db.VarChar(255)
+  longitude      String   @db.VarChar(255)
+
+  // Relations parentes
+  terminus       Terminus @relation(fields: [terminus_id], references: [id_term])
+  line           Line     @relation(fields: [line_id], references: [id_line])
+}
+
+model Ticket {
+  id_ticket     Int      @id @default(autoincrement())
+  driver_id   Int // Le driver qui vérifie
+  num_ticket    String   @db.VarChar(255)
+  qr_code       String   @db.VarChar(255)
+  status_ticket String   @db.VarChar(255)
+
+  // Relations parentes
+  verifier      User     @relation("DriverVerifyTicket", fields: [driver_id], references: [id_user])
+
+  // Relations enfants
+  incomes       Income[]
+}
+
+model Income {
+  id_in           Int      @id @default(autoincrement())
+  ticket_id Int
+  bus_id       Int
+  description     String   @db.VarChar(50)
+  amount          Float
+  date_in         String   @db.VarChar(255)
+
+  // Relations parentes
+  ticket          Ticket   @relation(fields: [ticket_id], references: [id_ticket])
+  bus             Bus      @relation(fields: [bus_id], references: [id_bus])
+}
+

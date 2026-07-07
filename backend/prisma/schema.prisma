@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id_user       Int      @id @default(autoincrement())
+  username      String?   @db.VarChar(50)
+  f_name        String   @db.VarChar(20)
+  l_name        String   @db.VarChar(20)
+  phone_number  String   @db.VarChar(15)
+  email         String   @db.VarChar(50)
+  password      String?   @db.VarChar(255)
+  status        String?   @db.VarChar(20)
+  role          String   @db.VarChar(20)
+  
+  permit        String?  @db.VarChar(3)
+  age           Int?
+  experience    String?  @db.VarChar(20)
+  status_driver String?  @db.VarChar(10)
+  discriminator String   @db.VarChar(50)
+  photo         String?  @db.VarChar(50)
+  created_at DateTime @default(now())   
+
+  controlledBuses UserControlledBus[]
+  drivenBuses     Bus[]               @relation("DriverDriveBus")
+  verifiedTickets Ticket[]            @relation("DriverVerifyTicket")
+}
+
+model Bus {
+  id_bus       Int      @id @default(autoincrement())
+  driver_id    Int? 
+  registration String   @db.VarChar(12)
+  modele       String   @db.VarChar(20)
+  capacity     Int
+  image        String   @db.VarChar(255)
+  status_bus   String   @db.VarChar(15)
+  created_at DateTime @default(now())
+
+  driver       User?     @relation("DriverDriveBus", fields: [driver_id], references: [id_user])
+
+  controllers  UserControlledBus[] // Relation Many-to-Many explicite pour les admins
+  lines        Line[]
+  incomes      Income[]
+  tickets      Ticket[]            @relation("BusScannedTicket")
+}
+
+// Table pivot explicite pour l'historique ou la gestion des contrôles de bus par l'admin
+model UserControlledBus {
+  id_control Int  @id @default(autoincrement())
+  admin_id   Int
+  bus_id     Int
+  controller User @relation(fields: [admin_id], references: [id_user])
+  bus        Bus  @relation(fields: [bus_id], references: [id_bus])
+  created_at DateTime @default(now())
+}
+
+model Line {
+  id_line      Int      @id @default(autoincrement())
+  bus_id       Int
+  line_name    String   @db.VarChar(255)
+  description  String   @db.VarChar(255)
+  price        Float    @default(1500.0) 
+  created_at DateTime @default(now())
+
+  // NOUVEAU : Stocke le tracé complet de la route généré par OSRM
+  // Format attendu en BDD : [[-21.4585, 47.1002], [-21.4570, 47.0950], ...]
+  road_path   Json
+
+  bus          Bus      @relation(fields: [bus_id], references: [id_bus])
+  
+  lineStops    LineStop[]
+  tripRequests TripRequest[]
+}
+
+// NOUVEAU : Un arrêt physique indépendant dans Fianarantsoa (ex: Andrainjato, Mahazengy)
+model Stop {
+  id_stop    Int      @id @default(autoincrement())
+  code_stop  String   @db.VarChar(255)
+  name_stop  String   @db.VarChar(255)
+  latitude   String   @db.VarChar(255)
+  longitude  String   @db.VarChar(255)
+  created_at DateTime @default(now())
+
+  lines      LineStop[]
+  tickets    Ticket[]      @relation("StopTicket")
+  tripRequests TripRequest[]
+}
+
+// TABLE INTERMÉDIAIRE CRUCIALE : Définit l'itinéraire d'une ligne
+model LineStop {
+  id_line_stop Int  @id @default(autoincrement())
+  line_id      Int
+  stop_id      Int
+  order        Int  
+  created_at DateTime @default(now())
+
+  line         Line @relation(fields: [line_id], references: [id_line])
+  stop         Stop @relation(fields: [stop_id], references: [id_stop])
+
+  @@unique([line_id, order]) // Empêche d'avoir deux arrêts à la même position dans une ligne
+}
+
+model TripRequest {
+  id_req       Int      @id @default(autoincrement())
+  stop_id      Int      // Remplacé terminus_id par stop_id
+  line_id      Int
+  request_time String   @db.VarChar(255)
+  latitude     String   @db.VarChar(255)
+  longitude    String   @db.VarChar(255)
+  created_at   DateTime @default(now())
+
+  stop         Stop     @relation(fields: [stop_id], references: [id_stop])
+  line         Line     @relation(fields: [line_id], references: [id_line])
+}
+
+model Ticket {
+  id_ticket     Int      @id @default(autoincrement())
+  num_ticket    String   @db.VarChar(255)
+  qr_code       String   @unique @db.VarChar(255)
+  status_ticket String   @db.VarChar(255) @default("AVAILABLE")
+  price         Float    @default(0.0)
+  created_at    DateTime @default(now())
+  expired_at    DateTime?
+  used_at       DateTime?
+  
+  stop_id       Int      // Remplacé terminus_id par stop_id
+  stop          Stop     @relation("StopTicket", fields: [stop_id], references: [id_stop])
+
+  driver_id     Int?   
+  bus_id        Int?
+  verifier      User?    @relation("DriverVerifyTicket", fields: [driver_id], references: [id_user])
+  bus           Bus?     @relation("BusScannedTicket", fields: [bus_id], references: [id_bus])
+
+  incomes       Income[]
+}
+
+model Income {
+  id_in       Int      @id @default(autoincrement())
+  ticket_id   Int
+  bus_id      Int
+  description String   @db.VarChar(50)
+  amount      Float
+  date_in     DateTime @default(now())
+
+  ticket      Ticket   @relation(fields: [ticket_id], references: [id_ticket])
+  bus         Bus      @relation(fields: [bus_id], references: [id_bus])
+}
