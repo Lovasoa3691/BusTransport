@@ -4,9 +4,9 @@ import SearchBar from "./SearchBar";
 import UserProfile from "./Userprofile";
 import api from "../hooks/api";
 
-export default function Topbar({ onSearchChange, user }) {
+export default function Topbar({ onSearchChange, user, handleLogout }) {
   return (
-    <header className="bg-[#19193E] text-white px-6 py-3 flex items-center justify-between shadow-md">
+    <header className="bg-[#31694E] text-white px-6 py-3 flex items-center justify-between shadow-md">
       <div className="font-bold text-lg tracking-wider cursor-pointer">
         LOGO
       </div>
@@ -20,7 +20,7 @@ export default function Topbar({ onSearchChange, user }) {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        <UserProfile user={user} />
+        <UserProfile user={user} handleLogout={handleLogout} />
       </div>
     </header>
   );

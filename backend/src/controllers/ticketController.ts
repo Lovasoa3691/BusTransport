@@ -6,17 +6,29 @@ const ticketService = new TicketService();
 
 export class TicketController {
   async getAllTickets(req: AuthenticatedRequest, res: Response) {
-    try {
-      const tickets = await ticketService.getAllTickets();
-      res.status(200).json({ success: true, data: tickets });
-    } catch (error: any) {
-      console.error(
-        "Erreur lors de la récupération des tickets :",
-        error.message,
-      );
-      res.status(500).json({ success: false, error: error.message });
-    }
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await ticketService.getAllTickets(page, limit);
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+
+  } catch (error: any) {
+    console.error(
+      "Erreur lors de la récupération des tickets :",
+      error.message,
+    );
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
+}
 
   async generateBatch(req: AuthenticatedRequest, res: Response) {
     try {

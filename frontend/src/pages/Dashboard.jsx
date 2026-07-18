@@ -12,13 +12,9 @@ import {
 } from "recharts";
 
 export default function DashboardContent({ search = "" }) {
-  // ================= 1. ÉTATS POUR LES FILTRES =================
   const [timeFilter, setTimeFilter] = useState("month"); // 'day' ou 'month'
   const [selectedBusFilter, setSelectedBusFilter] = useState("all");
 
-  // ================= 2. DONNÉES SIMULÉES (MOCK DATA) =================
-
-  // Liste globale de vos bus (id_bus, registration, capacity, image, status_bus)
   const workingBuses = [
     {
       id_bus: 1,
@@ -91,7 +87,10 @@ export default function DashboardContent({ search = "" }) {
   // ================= 3. LOGIQUE DES REVENUS (STATIQUES ET DYNAMIQUES) =================
   const totalRevenueCompany = "33,800,000 Ar"; // Revenu global historique de la société
 
-  // Simulation d'un calcul de revenu dynamique basé sur les filtres sélectionnés
+  const getActiveBuses = () => {
+    
+  }
+
   const getDynamicRevenue = () => {
     if (selectedBusFilter !== "all") {
       return timeFilter === "day" ? "85,000 Ar" : "1,950,000 Ar";
@@ -124,7 +123,7 @@ export default function DashboardContent({ search = "" }) {
             <option value="month">Ce Mois-ci</option>
           </select>
 
-          {/* Filtre par Bus */}
+          
           <select
             value={selectedBusFilter}
             onChange={(e) => setSelectedBusFilter(e.target.value)}
@@ -140,13 +139,9 @@ export default function DashboardContent({ search = "" }) {
         </div>
       </div>
 
-      {/* ================= GRILLE PRINCIPALE (CONTENUS) ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COLONNE GAUCHE & CENTRALE (Finances, Graphique et Bus) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* CARTES DE RECETTES */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* CARD 1 : Revenu Total Historique */}
             <div className="bg-white p-6 rounded-xl shadow-sm flex justify-between items-center relative overflow-hidden h-32 border-l-4 border-indigo-600">
               <div>
                 <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">

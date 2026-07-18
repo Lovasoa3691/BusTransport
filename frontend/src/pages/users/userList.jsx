@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   UserPlus,
   Trash2,
@@ -14,6 +14,8 @@ import Table from "../../components/common/table";
 import Pagination from "../../components/common/pagination";
 import axios from "axios";
 import UserForm from "./userForm";
+import api from "../../hooks/api";
+import Swal from "sweetalert2";
 
 export default function UserList() {
   const [isEdit, setIsEdit] = useState(false);
@@ -35,38 +37,7 @@ export default function UserList() {
   //     fetchLines(currentPage);
   //   }, [currentPage]);
 
-  const [users, setUsers] = useState([
-    {
-      id_user: 1,
-      f_name: "Tahina",
-      l_name: "Andria",
-      username: "tahina_admin",
-      email: "tahina@transport.mg",
-      phone_number: "034 55 666 77",
-      role: "Admin",
-      status_user: "Actif",
-    },
-    {
-      id_user: 2,
-      f_name: "Rova",
-      l_name: "Ranaivo",
-      username: "rova_ctrl",
-      email: "rova.ctrl@gmail.com",
-      phone_number: "033 22 111 00",
-      role: "Controller",
-      status_user: "Actif",
-    },
-    {
-      id_user: 3,
-      f_name: "Guillaume",
-      l_name: "Razafy",
-      username: "guillaume_client",
-      email: "guillaume@gmail.com",
-      phone_number: "032 88 999 11",
-      role: "Customer",
-      status_user: "Bloqué",
-    },
-  ]);
+  const [users, setUsers] = useState([]);
 
   const [userForm, setUserForm] = useState({
     f_name: "",
@@ -79,35 +50,22 @@ export default function UserList() {
     status_user: "Actif",
   });
 
+  const getAllUsers = async () => {
+    try {
+      const response = await api.get("/users");
+      console.log("Réponse de l'API :", response.data.user);
+      setUsers(response.data.user);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des arrêts :", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
+
   const handleCreateUser = (e) => {
     e.preventDefault();
-
-  
-    const generatedUsername =
-      userForm.username ||
-      `${userForm.f_name.toLowerCase()}_${userForm.l_name.toLowerCase()}`;
-
-    setUsers([
-      ...users,
-      {
-        id_user: users.length + 1,
-        ...userForm,
-        username: generatedUsername,
-      },
-    ]);
-
-   
-    setIsModalOpen(false);
-    setUserForm({
-      f_name: "",
-      l_name: "",
-      username: "",
-      email: "",
-      phone_number: "",
-      role: "Controller",
-      password: "",
-      status_user: "Actif",
-    });
   };
 
   const toggleUserStatus = (id) => {
@@ -123,7 +81,6 @@ export default function UserList() {
     );
   };
 
- 
   const filteredUsers = users.filter((u) => {
     const matchesSearch = `${u.f_name} ${u.l_name} ${u.username}`
       .toLowerCase()
@@ -131,7 +88,6 @@ export default function UserList() {
     const matchesRole = roleFilter === "" || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
-
 
   const getRoleBadge = (role) => {
     switch (role) {
@@ -148,7 +104,6 @@ export default function UserList() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1">
-         
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <input
@@ -160,7 +115,6 @@ export default function UserList() {
             />
           </div>
 
-        
           <div className="w-full sm:w-48 relative">
             <Filter className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <select
@@ -176,7 +130,6 @@ export default function UserList() {
           </div>
         </div>
 
-      
         <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center space-x-2 bg-[#3B3B98] hover:bg-[#19193E] text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors shrink-0 w-full md:w-auto justify-center"
@@ -190,7 +143,7 @@ export default function UserList() {
         headers={[
           "Identité / Utilisateur",
           "Rôle",
-          "Contacts",
+          "Email",
           "Statut",
           "Actions",
         ]}
@@ -201,23 +154,45 @@ export default function UserList() {
               key={user.id_user}
               className="hover:bg-gray-50 transition-colors"
             >
-             
-              <td className="px-6 py-4 flex items-center space-x-3">
-                <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-bold uppercase border text-xs">
-                  {user.f_name[0]}
-                  {user.l_name[0]}
-                </div>
-                <div>
-                  <div className="font-bold text-gray-800">
-                    {user.f_name} {user.l_name}
+              {user.role !== "Admin" ? (
+                <td className="px-6 py-4 flex items-center space-x-3">
+                  {user.photo ? (
+                    <img
+                      src={`http://localhost:5000/uploads/${user.photo}`}
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 font-bold uppercase border text-xs">
+                      {user.f_name[0]}
+                      {user.l_name[0]}
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-bold text-gray-800">
+                      {user.f_name} {user.l_name}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      @{user.username || "N/A"}
+                    </div>
                   </div>
-                  <div className="text-xs text-[#3B3B98] font-mono">
-                    @{user.username}
+                </td>
+              ) : (
+                <td className="px-6 py-4 flex items-center space-x-3">
+                  <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-bold uppercase border text-xs">
+                    {user.f_name[0]}
+                    {user.l_name[0]}
                   </div>
-                </div>
-              </td>
+                  <div>
+                    <div className="font-bold text-gray-800">
+                      {user.f_name} {user.l_name}
+                    </div>
+                    <div className="text-xs text-[#3B3B98] font-mono">
+                      @{user.username || "N/A"}
+                    </div>
+                  </div>
+                </td>
+              )}
 
-           
               <td className="px-6 py-4">
                 <span
                   className={`text-[10px] px-2.5 py-1 rounded-full font-bold border ${getRoleBadge(user.role)}`}
@@ -226,7 +201,6 @@ export default function UserList() {
                 </span>
               </td>
 
-             
               <td className="px-6 py-4 space-y-0.5">
                 <div className="text-xs font-medium text-gray-700 flex items-center">
                   <Mail size={12} className="mr-1 text-gray-400" /> {user.email}
@@ -237,22 +211,20 @@ export default function UserList() {
                 </div>
               </td>
 
-           
               <td className="px-6 py-4">
                 <button
                   onClick={() => toggleUserStatus(user.id_user)}
                   className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold transition-all ${
-                    user.status_user === "Actif"
+                    user.status === "Actif"
                       ? "bg-green-100 text-green-700 hover:bg-green-200"
                       : "bg-red-100 text-red-700 hover:bg-red-200"
                   }`}
                   title="Cliquez pour changer le statut"
                 >
-                  ● {user.status_user}
+                  ● {user.status}
                 </button>
               </td>
 
-             
               <td className="px-6 py-4">
                 <button
                   onClick={() =>

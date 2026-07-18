@@ -3,10 +3,10 @@ import { Outlet } from "react-router-dom";
 import Topbar from "../Topbar";
 import Navbar from "../Navbar";
 
-export default function DashboardLayout({ user }) {
+export default function DashboardLayout({ user, handleLogout }) {
   return (
     <div className="min-h-screen bg-[#D9D9D9]">
-      <Topbar user={user} />
+      <Topbar user={user} handleLogout={handleLogout}/>
 
       <Navbar />
 

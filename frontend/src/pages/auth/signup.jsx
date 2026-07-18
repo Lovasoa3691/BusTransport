@@ -142,7 +142,7 @@ export default function SignUpContent({
 
         <button
           type="submit"
-          className="w-full bg-[#3B3B98] hover:bg-[#19193E] text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md transition-all mt-2"
+          className="w-full hover:bg-[#31694E] bg-[#4d7c65] text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md transition-all mt-2"
         >
           Créer mon compte
         </button>

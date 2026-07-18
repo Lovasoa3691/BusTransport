@@ -13,7 +13,7 @@ export class UserService {
 
   async getUserByEmail(email: string) {
     return await prisma.user.findFirst({
-      where: { email: email }
+      where: { email: email },
     });
   }
 
@@ -24,7 +24,6 @@ export class UserService {
     });
   }
 
-  // UPDATE
   async updateUser(id_user: number, data: any) {
     return await prisma.user.update({
       where: { id_user },
@@ -32,7 +31,13 @@ export class UserService {
     });
   }
 
-  // DELETE
+  async updateDriver(id_user: number, data: any) {
+    return await prisma.user.update({
+      where: { id_user },
+      data,
+    });
+  }
+
   async deleteUser(id_user: number) {
     return await prisma.user.delete({
       where: { id_user },

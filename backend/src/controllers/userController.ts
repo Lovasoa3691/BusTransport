@@ -8,7 +8,6 @@ const userService = new UserService();
 const driverService = new DriverService();
 
 export class UserController {
-  // POST /api/users
   async create(req: Request, res: Response) {
     try {
       const {
@@ -35,7 +34,6 @@ export class UserController {
           .json({ success: false, error: "Le mot de passe est obligatoire." });
       }
 
-      // 1. Hachage du mot de passe (10 rounds est le standard de sécurité)
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -51,13 +49,13 @@ export class UserController {
         discriminator: discriminator || descriminator,
       };
 
-      if (role === "Chauffeur" || userData.discriminator === "CHAUFFEUR") {
-        userData.id_driver = id_driver ? Number(id_driver) : undefined;
-        userData.permit = permit;
-        userData.age = age ? Number(age) : undefined;
-        userData.experience = experience;
-        userData.status_driver = status_driver;
-      }
+      // if (role === "Chauffeur" || userData.discriminator === "CHAUFFEUR") {
+      //   userData.id_driver = id_driver ? Number(id_driver) : undefined;
+      //   userData.permit = permit;
+      //   userData.age = age ? Number(age) : undefined;
+      //   userData.experience = experience;
+      //   userData.status_driver = status_driver;
+      // }
 
       const user = await userService.createUser(userData);
 
@@ -125,15 +123,32 @@ export class UserController {
 
   async getAllDriver(req: Request, res: Response) {
     try {
-      const users = await driverService.getAllDrivers();
-      console.log("Chauffeurs récupérés:", users);
+      const drivers = await driverService.getAllDrivers();
+      console.log("Chauffeurs récupérés:", drivers);
       res.status(200).json({
         success: true,
-        count: users.length,
-        data: users,
+        count: drivers.length,
+        data: drivers,
       });
     } catch (error: any) {
       console.error("Erreur lors de la récupération des chauffeurs:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+  async getAllUser(req: Request, res: Response) {
+    try {
+      const users = await userService.getAllUsers();
+      res.status(200).json({
+        success: true,
+        count: users.length,
+        user: users,
+      });
+    } catch (error: any) {
+      console.error("Erreur lors de la récupération des utilisateurs:", error);
       res.status(500).json({
         success: false,
         error: error.message,
@@ -158,6 +173,45 @@ export class UserController {
       res.status(200).json({
         success: true,
         message: "Utilisateur mis à jour avec succès",
+        data: updatedUser,
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+  async updateUser(req: Request, res: Response) {
+    try {
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+
+      const { username, password } = req.body;
+      const id_user = parseInt(id, 30);
+
+      if (isNaN(id_user)) {
+        return res.status(400).json({
+          success: false,
+          error: "Email introuvable.",
+        });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      const userData: any = {
+        username,
+        password: hashedPassword,
+        status: "Actif",
+      };
+
+      const updatedUser = await userService.updateUser(id_user, userData);
+      res.status(200).json({
+        success: true,
+        message: "Votre compte est maintenant activé",
         data: updatedUser,
       });
     } catch (error: any) {
@@ -195,7 +249,6 @@ export class UserController {
     }
   }
 
-  // GET /api/users
   async getAll(req: Request, res: Response) {
     try {
       const users = await userService.getAllUsers();
@@ -215,7 +268,6 @@ export class UserController {
     }
   }
 
-  // GET /api/users/:id
   async getById(req: Request, res: Response) {
     try {
       const idParam = Array.isArray(req.params.id)
@@ -248,33 +300,33 @@ export class UserController {
     }
   }
 
-  // PUT /api/users/:id
-  async update(req: Request, res: Response) {
-    try {
-      const idParam = Array.isArray(req.params.id)
-        ? req.params.id[0]
-        : req.params.id;
-      const id = parseInt(idParam as string, 10);
-      if (isNaN(id)) {
-        return res.status(400).json({
-          success: false,
-          error: "L'ID fourni n'est pas un nombre valide.",
-        });
-      }
+  // // PUT /api/users/:id
+  // async update(req: Request, res: Response) {
+  //   try {
+  //     const idParam = Array.isArray(req.params.id)
+  //       ? req.params.id[0]
+  //       : req.params.id;
+  //     const id = parseInt(idParam as string, 10);
+  //     if (isNaN(id)) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         error: "L'ID fourni n'est pas un nombre valide.",
+  //       });
+  //     }
 
-      const updatedUser = await userService.updateUser(id, req.body);
-      res.status(200).json({
-        success: true,
-        message: "Utilisateur mis à jour avec succès",
-        data: updatedUser,
-      });
-    } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message,
-      });
-    }
-  }
+  //     const updatedUser = await userService.updateUser(id, req.body);
+  //     res.status(200).json({
+  //       success: true,
+  //       message: "Utilisateur mis à jour avec succès",
+  //       data: updatedUser,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(400).json({
+  //       success: false,
+  //       error: error.message,
+  //     });
+  //   }
+  // }
 
   // DELETE /api/users/:id
   async delete(req: Request, res: Response) {

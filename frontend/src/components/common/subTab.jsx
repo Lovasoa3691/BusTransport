@@ -26,7 +26,7 @@ export default function SubTab({ subTab, setSubTab, setIsModalOpen }) {
 
           return (
             <button
-              className={`flex items-center space-x-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${tab.key === subTab ? "bg-[#3B3B98] text-white shadow-sm" : "text-gray-500 hover:bg-gray-100"}`}
+              className={`flex items-center space-x-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${tab.key === subTab ? "bg-[#9A3F3F] text-white shadow-sm" : "text-gray-500 hover:bg-gray-100"}`}
               key={tab.key}
               onClick={() => setSubTab(tab.key)}
             >
@@ -41,7 +41,7 @@ export default function SubTab({ subTab, setSubTab, setIsModalOpen }) {
         onClick={() => {
           setIsModalOpen(true);
         }}
-        className="flex items-center space-x-2 bg-[#3B3B98] hover:bg-[#19193E] text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors"
+        className="flex items-center space-x-2 bg-[#9A3F3F] hover:bg-[#19193E] text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors"
       >
         <Plus size={16} />
         <span>

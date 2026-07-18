@@ -39,13 +39,13 @@ export default function TicketList() {
     contentRef: printRef,
   });
 
-  const fetchLines = async (page = 1) => {
-    const response = await axios.get(`/api/lines?page=${page}&limit=10`);
+  // const fetchLines = async (page = 1) => {
+  //   const response = await axios.get(`/api/lines?page=${page}&limit=10`);
 
-    setLines(response.data.data);
-    setCurrentPage(response.data.currentPage);
-    setTotalPages(response.data.totalPages);
-  };
+  //   setLines(response.data.data);
+  //   setCurrentPage(response.data.currentPage);
+  //   setTotalPages(response.data.totalPages);
+  // };
 
   const getSops = async () => {
     try {
@@ -56,15 +56,17 @@ export default function TicketList() {
     }
   };
 
-  const getAllTickets = async () => {
+  const getAllTickets = async (page = 1) => {
     try {
-      const response = await api.get("/tickets");
+      const response = await api.get(`/tickets?page=${page}&limit=10`);
       if (!response.data || !response.data.data) {
         console.error("Réponse de l'API invalide :", response.data);
         return;
       }
-      console.log("Réponse de l'API :", response.data.data);
+      console.log("Réponse de l'API :", response.data);
       setTickets(response.data.data);
+      setCurrentPage(response.data.page);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Erreur lors de la récupération des tickets :", error);
     }
@@ -72,12 +74,11 @@ export default function TicketList() {
 
   useEffect(() => {
     getSops();
-    getAllTickets();
   }, []);
 
-  //   useEffect(() => {
-  //     fetchLines(currentPage);
-  //   }, [currentPage]);
+  useEffect(() => {
+    getAllTickets(currentPage);
+  }, [currentPage]);
 
   const [ticketForm, setTicketForm] = useState({
     id_stop: 0,
@@ -132,12 +133,10 @@ export default function TicketList() {
     return matchesSearch && matchesStatus;
   });
 
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto flex-1">
-         
           <div className="relative flex-1 max-w-md w-full">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <input
@@ -149,7 +148,6 @@ export default function TicketList() {
             />
           </div>
 
-         
           <div className="w-full sm:w-48 relative">
             <Filter className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <select
@@ -253,13 +251,13 @@ export default function TicketList() {
         ))}
       </Table>
 
-      <div ref={printRef}>
+      {/* <div ref={printRef}>
         <div className="grid grid-cols-2 gap-4">
           {tickets.map((ticket) => (
             <TicketCard key={ticket.id_ticket} ticket={ticket} />
           ))}
         </div>
-      </div>
+      </div> */}
 
       <Pagination
         currentPage={currentPage}

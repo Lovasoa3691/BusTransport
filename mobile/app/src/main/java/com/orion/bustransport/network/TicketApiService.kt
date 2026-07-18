@@ -26,7 +26,7 @@ interface TicketApiService {
 // 3. Singleton pour initialiser l'instance Retrofit
 object RetrofitClient {
     // Remplacez par l'IP de votre serveur Express (Exemple avec l'IP passerelle de l'émulateur)
-    private const val BASE_URL = "http://10.0.2.2:3000/"
+    private const val BASE_URL = "http://10.0.2.2:5000/"
 
     val apiService: TicketApiService by lazy {
         Retrofit.Builder()

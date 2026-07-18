@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import api from "../hooks/api";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-export default function UserProfile({ user }) {
+export default function UserProfile({ user, handleLogout }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const getColorForLetter = (letter = "") => {
     const l = letter.toUpperCase();
@@ -17,18 +21,35 @@ export default function UserProfile({ user }) {
     return "#6b7280";
   };
 
+  // const handleLogout = () => {
+  //   api
+  //     .post("/auth/logout")
+  //     .then((res) => {
+  //       console.log("Reponse: ", res.data.success);
+  //       if (res.data.success) {
+
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.log("Erreur de deconnction", error.message);
+  //       Swal.fire({
+  //         title: "Erreur",
+  //         text: `${error.message}` || "Erreur de deconnection",
+  //         icon: "error",
+  //       });
+  //     });
+  // };
+
   if (!user) return null;
 
   const initial = `${user.username?.charAt(0)?.toUpperCase()} ${user.username?.split(" ")[1]?.charAt(0)?.toUpperCase() || ""}`;
 
   return (
     <div className="relative">
-      {/* Trigger */}
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-3 hover:opacity-80 transition"
       >
-        {/* Avatar */}
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold"
           style={{ backgroundColor: getColorForLetter(initial) }}
@@ -36,7 +57,6 @@ export default function UserProfile({ user }) {
           {initial}
         </div>
 
-        {/* User info */}
         <div className="hidden md:flex flex-col text-left">
           <span className="text-sm font-semibold text-gray-200">
             {user.username}
@@ -47,14 +67,11 @@ export default function UserProfile({ user }) {
         </div>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <>
-          {/* overlay */}
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
 
           <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
-            {/* Header */}
             <div className="flex items-center gap-3 p-4 border-b">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
@@ -69,9 +86,8 @@ export default function UserProfile({ user }) {
               </div>
             </div>
 
-            {/* Actions */}
             <button
-              // onClick={handleLogout}
+              onClick={handleLogout}
               className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition"
             >
               Se déconnecter

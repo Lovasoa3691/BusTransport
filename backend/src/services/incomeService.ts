@@ -6,12 +6,17 @@ export class IncomeService {
   }
 
   async getAllIncomes() {
-    return await prisma.income.findMany();
+    return await prisma.income.aggregate({
+      _sum: {
+        amount: true,
+      },
+    });
   }
 
-  async getIncomeById(id_income: number) {
-    return await prisma.income.findUnique({
-      where: { id_in: id_income },
+  async getIncomeByBus(bus_id: number) {
+    return await prisma.income.aggregate({
+      where: { bus_id: bus_id },
+      _sum: { amount: true },
     });
   }
 

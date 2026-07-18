@@ -8,7 +8,7 @@ export default function App() {
   const [isAuth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const checkToken = () => {
     api
       .get("/users/me")
       .then((res) => {
@@ -21,9 +21,34 @@ export default function App() {
         setAuth(false);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    checkToken();
   }, []);
+
+  const handleLogout = () => {
+    api
+      .post("/auth/logout")
+      .then((res) => {
+        if (res.data.success) {
+          // setAuth(false);
+          checkToken();
+        }
+      })
+      .catch((error) => {
+        console.log("erreur de deconnecrion: ", error.message);
+      });
+  };
 
   if (loading) return <p>Chargement...</p>;
 
-  return <AppRoutes user={user} setUser={setUser} setAuth={setAuth} />;
+  return (
+    <AppRoutes
+      user={user}
+      setUser={setUser}
+      setAuth={setAuth}
+      handleLogout={handleLogout}
+    />
+  );
 }

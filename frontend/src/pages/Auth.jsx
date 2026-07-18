@@ -62,33 +62,33 @@ export default function AuthPages({ onAuthSuccess }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#19193E] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#31694E] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#3B3B98]/20 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gray-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 z-10 transition-all duration-300">
-        <div className="bg-gradient-to-br from-[#3B3B98] to-[#19193E] p-6 text-center text-white space-y-2">
+        <div className="bg-gradient-to-br from-[#4d7c65] to-[#4d7c65] p-6 text-center text-white space-y-2">
           <div className="inline-flex p-3 bg-white/10 rounded-xl backdrop-blur-sm mb-1">
             <Bus size={32} className="text-white" />
           </div>
-          <h1 className="text-xl font-bold uppercase tracking-widest">
-            TransScan
+          <h1 className="text-xl font-bold uppercase tracking-widest mb-6">
+            MadaTransit
           </h1>
-          <p className="text-xs text-gray-300">
+          {/* <p className="text-xs text-gray-300">
             Gestion de billets de bus & scanning de revenus
-          </p>
+          </p> */}
         </div>
 
         <div className="flex border-b border-gray-150 text-sm font-bold uppercase tracking-wider text-center">
           <button
             onClick={() => setIsLogin(true)}
-            className={`w-1/2 py-3 transition-colors ${isLogin ? "text-[#3B3B98] border-b-2 border-[#3B3B98] bg-gray-50/50" : "text-gray-400 hover:text-gray-600"}`}
+            className={`w-1/2 py-3 transition-colors ${isLogin ? "text-[#31694E] border-b-2 border-[#2a5a43] bg-gray-50/50" : "text-gray-400 hover:text-gray-600"}`}
           >
             Se connecter
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`w-1/2 py-3 transition-colors ${!isLogin ? "text-[#3B3B98] border-b-2 border-[#3B3B98] bg-gray-50/50" : "text-gray-400 hover:text-gray-600"}`}
+            className={`w-1/2 py-3 transition-colors ${!isLogin ? "text-[#31694E] border-b-2 border-[#2a5a43] bg-gray-50/50" : "text-gray-400 hover:text-gray-600"}`}
           >
             S'inscrire
           </button>

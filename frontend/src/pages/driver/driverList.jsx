@@ -129,7 +129,7 @@ export default function DriverList() {
               placeholder="Rechercher un chauffeur par nom..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 pl-10 pr-4 py-2 rounded-lg text-sm outline-none focus:border-[#3B3B98] focus:bg-white transition-colors"
+              className="w-full bg-gray-50 border border-gray-200 pl-10 pr-4 py-2 rounded-lg text-sm outline-none focus:border-[#5E0006] focus:bg-white transition-colors"
             />
           </div>
           <div className="w-full sm:w-48 relative">
@@ -137,7 +137,7 @@ export default function DriverList() {
             <select
               value={permitFilter}
               onChange={(e) => setPermitFilter(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 pl-10 pr-4 py-2 rounded-lg text-sm outline-none focus:border-[#3B3B98] focus:bg-white transition-colors appearance-none"
+              className="w-full bg-gray-50 border border-gray-200 pl-10 pr-4 py-2 rounded-lg text-sm outline-none focus:border-[#5E0006] focus:bg-white transition-colors appearance-none"
             >
               <option value="">Tous les permis</option>
               <option value="B">Permis B</option>
@@ -149,7 +149,7 @@ export default function DriverList() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 bg-[#3B3B98] hover:bg-[#19193E] text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors shrink-0"
+          className="flex items-center space-x-2 bg-[#5E0006] hover:bg-[#19193E] text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors shrink-0"
         >
           <UserPlus size={16} />
           <span>Ajouter un chauffeur</span>

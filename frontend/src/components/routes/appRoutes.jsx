@@ -13,7 +13,7 @@ import Users from "../../pages/User";
 import Tracking from "../../pages/Tracking";
 import PublicRoute from "./publicRoutes";
 
-export default function AppRoutes({ user, setUser, setAuth }) {
+export default function AppRoutes({ user, setUser, setAuth, handleLogout }) {
   return (
     <BrowserRouter>
       <Routes>
@@ -34,7 +34,11 @@ export default function AppRoutes({ user, setUser, setAuth }) {
         </Route>
 
         <Route element={<ProtectedRoute user={user} />}>
-          <Route element={<DashboardLayout user={user} />}>
+          <Route
+            element={
+              <DashboardLayout user={user} handleLogout={handleLogout} />
+            }
+          >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/buses" element={<Buses />} />
             <Route path="/drivers" element={<Drivers />} />

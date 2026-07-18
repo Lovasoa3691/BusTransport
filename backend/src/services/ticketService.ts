@@ -2,14 +2,30 @@ import { prisma } from "../client.js";
 import { v4 as uuidv4 } from "uuid";
 
 export class TicketService {
-  async getAllTickets() {
-    return await prisma.ticket.findMany({
-      include: {
-        stop: true,
-        // bus: true,
-        // driver: true,
-      },
-    });
+  async getAllTickets(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [tickets, total] = await Promise.all([
+      prisma.ticket.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          created_at: "desc",
+        },
+        include: {
+          stop: true,
+        },
+      }),
+      prisma.ticket.count(),
+    ]);
+
+    return {
+      data: tickets,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async generateTicketsBatch(terminusId: number, count: number, price: number) {

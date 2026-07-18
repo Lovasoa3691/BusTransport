@@ -7,6 +7,7 @@ import userRoutes from "./routes/userRoutes";
 import ticketRoutes from "./routes/ticketRoutes";
 import busRoutes from "./routes/busRoutes";
 import terminusRoutes from "./routes/terminusRoutes";
+import incomeRoutes from "./routes/incomeRoutes";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api", userRoutes);
 app.use("/api", ticketRoutes);
 app.use("/api", busRoutes);
 app.use("/api", terminusRoutes);
+app.use("/api", incomeRoutes);
 
 const PORT = process.env.PORT || 5000;
 

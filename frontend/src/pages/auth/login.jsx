@@ -62,7 +62,7 @@ export default function LoginContent({
           <a
             href="#forgot"
             onClick={(e) => e.preventDefault()}
-            className="text-xs font-bold text-[#3B3B98] hover:underline"
+            className="text-xs font-bold text-gray-500 hover:underline"
           >
             Mot de passe oublié ?
           </a>
@@ -70,7 +70,7 @@ export default function LoginContent({
 
         <button
           type="submit"
-          className="w-full bg-[#3B3B98] hover:bg-[#19193E] text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md transition-all mt-2"
+          className="w-full hover:bg-[#31694E] bg-[#4d7c65] text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md transition-all mt-2"
         >
           Accéder au Dashboard
         </button>

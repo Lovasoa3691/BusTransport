@@ -32,7 +32,7 @@ router.put(
   "/drivers/:id",
   verifyToken,
   requireRole("Admin"),
-  userController.update,
+  userController.updateDriver,
 );
 router.delete(
   "/drivers/:id",
@@ -42,18 +42,24 @@ router.delete(
 );
 
 router.post("/users", verifyToken, requireRole("Admin"), userController.create);
-router.get("/users", verifyToken, requireRole("Admin"), userController.getAll);
+router.get(
+  "/users",
+  verifyToken,
+  requireRole("Admin"),
+  userController.getAllUser,
+);
 router.get(
   "/users/:id",
   verifyToken,
   requireRole("Admin"),
   userController.getById,
 );
+
 router.put(
   "/users/:id",
   verifyToken,
-  requireRole("Admin"),
-  userController.update,
+  // requireRole("Admin"),
+  userController.updateUser,
 );
 router.delete(
   "/users/:id",
