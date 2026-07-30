@@ -21,7 +21,6 @@ export class LineService {
       },
     });
 
-    // 2. Sécurité : Vérifier si tous les arrêts demandés existent bel et bien
     if (stops.length !== stop_ids.length) {
       const foundIds = stops.map((s) => s.id_stop);
       const missingIds = stop_ids.filter((id) => !foundIds.includes(id));
@@ -30,8 +29,6 @@ export class LineService {
       );
     }
 
-    // 3. Réordonner le résultat pour respecter scrupuleusement l'ordre du tableau 'stop_ids'
-    // (Andrainjato -> Antanifotsy -> ... -> Mahazengy)
     const orderedStops = stop_ids.map((id) => {
       const stop = stops.find((s) => s.id_stop === id);
       return {
@@ -44,7 +41,7 @@ export class LineService {
   }
 
   async createLine(data: any) {
-    const { bus_id, line_name, description, price, viaPoints, lineStops } =
+    const { bus_id, line_name, description, price, road_path, lineStops } =
       data;
 
     return await prisma.$transaction(async (tx) => {
@@ -54,7 +51,7 @@ export class LineService {
           line_name,
           description,
           price,
-          road_path: viaPoints,
+          road_path,
         },
       });
 
@@ -73,7 +70,30 @@ export class LineService {
   }
 
   async getAllLines() {
-    return await prisma.line.findMany();
+    return await prisma.line.findMany({
+      include: {
+        bus: {
+          include: {
+            driver: {
+              select: {
+                id_user: true,
+                f_name: true,
+                l_name: true,
+                photo: true,
+              },
+            },
+          },
+        },
+        lineStops: {
+          include: {
+            stop: true,
+          },
+          orderBy: {
+            order: "asc",
+          },
+        },
+      },
+    });
   }
 
   async getLineById(id_line: number) {

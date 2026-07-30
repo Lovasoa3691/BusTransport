@@ -28,6 +28,38 @@ export class TicketService {
     };
   }
 
+  async getTicketByDriver(userId: number) {
+    const today = new Date();
+
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const tickets = await prisma.ticket.findMany({
+      // where: {
+      //   driver_id: userId,
+      //   created_at: {
+      //     gte: startOfDay,
+      //     lte: endOfDay,
+      //   },
+      //   status_ticket: "USED",
+      // },
+      // include: {
+      //   bus: true,
+      //   incomes: true,
+      // },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    return {
+      data: tickets,
+    };
+  }
+
   async generateTicketsBatch(terminusId: number, count: number, price: number) {
     const terminus = await prisma.stop.findUnique({
       where: { id_stop: terminusId },
@@ -46,7 +78,7 @@ export class TicketService {
         price: price,
         stop_id: terminusId,
         expired_at: expired_at,
-        status_ticket: "AVAILABLE",
+        status_ticket: "UNUSED",
       });
     }
 
@@ -77,18 +109,19 @@ export class TicketService {
     });
 
     if (!ticket) throw new Error("QR Code invalide ou contrefait.");
-    if (ticket.status_ticket === "Utilisé")
+    if (ticket.status_ticket === "USED")
       throw new Error("Ce ticket a déjà été scanné et utilisé.");
-    if (ticket.status_ticket === "Annulé")
+    if (ticket.status_ticket === "CANCELED")
       throw new Error("Ce ticket a été annulé.");
 
     return await prisma.$transaction(async (tx) => {
       const updatedTicket = await tx.ticket.update({
         where: { qr_code: qrCode },
         data: {
-          status_ticket: "Utilisé",
+          status_ticket: "USED",
           driver_id: driverId,
           bus_id: busId,
+          used_at: new Date(),
         },
       });
 

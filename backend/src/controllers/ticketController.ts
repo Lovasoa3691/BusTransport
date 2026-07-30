@@ -6,29 +6,50 @@ const ticketService = new TicketService();
 
 export class TicketController {
   async getAllTickets(req: AuthenticatedRequest, res: Response) {
-  try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
 
-    const result = await ticketService.getAllTickets(page, limit);
+      const result = await ticketService.getAllTickets(page, limit);
 
-    res.status(200).json({
-      success: true,
-      ...result,
-    });
+      res.status(200).json({
+        success: true,
+        ...result,
+      });
+    } catch (error: any) {
+      console.error(
+        "Erreur lors de la récupération des tickets :",
+        error.message,
+      );
 
-  } catch (error: any) {
-    console.error(
-      "Erreur lors de la récupération des tickets :",
-      error.message,
-    );
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
   }
-}
+
+  async getTicketByDriver(req: AuthenticatedRequest, res: Response) {
+    try {
+      const id = req.query.id as string;
+      console.log("Identifiant: ", req.user?.id_user);
+      const result = await ticketService.getTicketByDriver(parseInt(id));
+      res.status(200).json({
+        success: true,
+        ...result,
+      });
+    } catch (error: any) {
+      console.error(
+        "Erreur lors de la récupération des tickets :",
+        error.message,
+      );
+
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
 
   async generateBatch(req: AuthenticatedRequest, res: Response) {
     try {
@@ -63,17 +84,19 @@ export class TicketController {
 
   async scanTicket(req: AuthenticatedRequest, res: Response) {
     try {
-      const { qr_code, bus_id } = req.body;
+      const { qrcode } = req.body;
       const driver_id = req.user?.id_user;
 
-      if (!qr_code || !bus_id || !driver_id) {
+      console.log("Code QR: ", qrcode);
+
+      if (!qrcode || !driver_id) {
         return res
           .status(400)
           .json({ success: false, error: "Données de scan incomplètes." });
       }
 
       const result = await ticketService.scanAndValidateTicket(
-        qr_code,
+        qrcode,
         Number(driver_id),
       );
 

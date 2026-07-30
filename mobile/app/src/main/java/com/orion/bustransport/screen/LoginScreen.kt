@@ -1,5 +1,6 @@
 package com.orion.bustransport.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,16 +33,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.orion.bustransport.R
+import com.orion.bustransport.viewModel.LoginViewModel
 
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel,
     onLoginSuccess: (String) -> Unit,
     onForgotPasswordClick: () -> Unit = {},
     onActivateAccountClick: () -> Unit = {}
 ) {
-    var username by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+
+    val isLoading = viewModel.isLoading
+    val error = viewModel.errorMessage
 
     // Palette de couleurs épurée
     val appBackground = Color.White // Arrière-plan principal blanc pour un look natif et propre
@@ -91,21 +99,21 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "TRANSSCAN",
+                text = "ORION-TRANSIT",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Black,
                 color = darkBlue,
                 letterSpacing = 2.sp
             )
 
-            Text(
-                text = "Espace Chauffeur connecté",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = textMuted,
-                modifier = Modifier.padding(top = 6.dp),
-                textAlign = TextAlign.Center
-            )
+//            Text(
+//                text = "Espace Chauffeur connecté",
+//                fontSize = 14.sp,
+//                fontWeight = FontWeight.Medium,
+//                color = textMuted,
+//                modifier = Modifier.padding(top = 6.dp),
+//                textAlign = TextAlign.Center
+//            )
         }
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -125,9 +133,9 @@ fun LoginScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    placeholder = { Text("Ex: Julianot@Orion", color = textMuted.copy(alpha = 0.6f), fontSize = 14.sp) },
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = { Text("Ex: example@gmail.com", color = textMuted.copy(alpha = 0.6f), fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
@@ -214,12 +222,28 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Affichage de l'erreur si elle existe
+            error?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+
             Button(
                 onClick = {
-                    if (username.isNotEmpty() && password.isNotEmpty()) {
-                        onLoginSuccess(username)
+                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                        viewModel.login(email, password){
+                            Toast.makeText(context, "Connexion réussie !", Toast.LENGTH_SHORT).show()
+                            onLoginSuccess(email)
+                        }
                     }
                 },
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
@@ -230,13 +254,21 @@ fun LoginScreen(
                     pressedElevation = 0.dp
                 )
             ) {
-                Text(
-                    text = "SE CONNECTER",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 15.sp,
-                    color = Color.White,
-                    letterSpacing = 1.sp
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = "SE CONNECTER",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 15.sp,
+                        color = Color.White,
+                        letterSpacing = 1.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

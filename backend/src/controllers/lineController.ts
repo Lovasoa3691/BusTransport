@@ -4,53 +4,78 @@ import axios from "axios";
 
 const lineService = new LineService();
 
-// Fonction utilitaire pour appeler OSRM et obtenir les coordonnées réelles des routes
-async function fetchRoutePath(stopsCoords: { latitude: string; longitude: string }[]): Promise<any> {
-  if (stopsCoords.length < 2) return [];
+async function fetchRoutePath(
+  points: { latitude: string | number; longitude: string | number }[],
+): Promise<[number, number][]> {
+  if (points.length < 2) return [];
 
-  // OSRM requiert le format [longitude,latitude] séparé par des points-virgules
-  const coordinatesString = stopsCoords
-    .map(coord => `${coord.longitude},${coord.latitude}`)
+  const coordinatesString = points
+    .map((point) => `${point.longitude},${point.latitude}`)
     .join(";");
 
-  const url = `http://router.project-osrm.org/route/v1/driving/${coordinatesString}?overview=full&geometries=geojson`;
-  
-  const response = await axios.get(url);
-  
-  const routePoints = response.data.routes[0].geometry.coordinates.map(
-    (coord: [number, number]) => [coord[1], coord[0]]
-  );
+  const url =
+    `https://router.project-osrm.org/route/v1/driving/${coordinatesString}` +
+    `?overview=full&geometries=geojson`;
 
-  return routePoints;
+  const response = await axios.get(url);
+
+  return response.data.routes[0].geometry.coordinates.map(
+    ([longitude, latitude]: [number, number]) => [latitude, longitude],
+  );
+}
+
+function buildRoutePoints(
+  stopsCoords: { latitude: string; longitude: string }[],
+  viaPoints: { latitude: number; longitude: number }[],
+) {
+  return [
+    stopsCoords[0],
+
+    ...viaPoints.map((point) => ({
+      latitude: point.latitude,
+      longitude: point.longitude,
+    })),
+
+    stopsCoords[stopsCoords.length - 1],
+  ];
 }
 
 export class LineController {
   async create(req: Request, res: Response) {
     try {
-      const { bus_id, line_name, description, price, lineStops, viaPoints } = req.body;
+      const { bus_id, line_name, description, price, lineStops, viaPoints } =
+        req.body;
 
       const stop_ids = lineStops.map((stop: any) => stop.id_stop);
 
-      if (!stop_ids || !Array.isArray(stop_ids) || stop_ids.length < 2) {
+      if (!Array.isArray(stop_ids) || stop_ids.length < 2) {
         return res.status(400).json({
           success: false,
-          error: "Vous devez fournir un tableau d'au moins 2 arrêts (stop_ids) pour créer un itinéraire.",
+          error: "Il faut au minimum deux arrêts.",
         });
       }
 
-      
       const stopsCoords = await lineService.getStopsCoordinates(stop_ids);
 
-      const route_path = await fetchRoutePath(stopsCoords);
+      // Construction du trajet personnalisé
+      const routePoints = buildRoutePoints(stopsCoords, viaPoints || []);
+      console.log("RoutePoints: ", routePoints);
+
+      // Génération de la vraie route
+      const road_path = await fetchRoutePath(routePoints);
+      console.log("RoutePath: ", road_path);
 
       const lineData = {
-        bus_id,
+        bus_id: parseInt(bus_id),
         line_name,
         description,
-        price,
-        road_path: route_path, // Le tableau JSON de points GPS à enregistrer dans le nouveau champ Prisma
-        stop_ids    // Transmis au service pour créer les enregistrements dans LineStop
+        price: parseInt(price),
+        viaPoints,
+        lineStops,
+        road_path,
       };
+
+      console.log("Data :", lineData);
 
       const line = await lineService.createLine(lineData);
 
@@ -59,7 +84,8 @@ export class LineController {
         data: line,
       });
     } catch (error: any) {
-      console.error("Erreur lors de la création de la ligne:", error);
+      console.error(error);
+
       res.status(400).json({
         success: false,
         error: error.message,

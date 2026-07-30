@@ -107,7 +107,7 @@ export default function LineForm({
             onSubmit={handleFormSubmit}
             className="flex flex-1 overflow-hidden"
           >
-            <div className="w-[500px] overflow-y-auto p-6 space-y-4 border-r">
+            <div className="w-125 overflow-y-auto p-6 space-y-4 border-r">
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1">
                   Nom de la Ligne
@@ -179,46 +179,46 @@ export default function LineForm({
                 </div>
               </div>
 
-            
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
                 <label className="block text-xs font-bold text-[#3B3B98] uppercase">
                   Itinéraire ordonné
                 </label>
-                <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                  {lineForm.lineStops.map((ls, idx) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between items-center bg-white px-3 py-1.5 rounded-lg border text-xs"
-                    >
-                      <span className="font-medium text-gray-700">
-                        📌{" "}
-                        <span className="font-bold text-gray-400">
-                          #{idx + 1}
-                        </span>{" "}
-                        {ls.stop.name_stop}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setLineForm({
-                            ...lineForm,
-                            lineStops: lineForm.lineStops.filter(
-                              (_, i) => i !== idx,
-                            ),
-                          })
-                        }
-                        className="text-red-500 font-bold"
+                <div className="space-y-1.5 max-h-64 h-64 overflow-y-auto">
+                  <div>
+                    {lineForm.lineStops.map((ls, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center bg-white px-3 py-1.5 rounded-lg outline-0 border text-xs"
                       >
-                        Retirer
-                      </button>
-                    </div>
-                  ))}
+                        <span className="font-medium text-gray-700">
+                          <span className="font-bold text-gray-400">
+                            #{idx + 1}
+                          </span>{" "}
+                          {ls.stop.name_stop}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setLineForm({
+                              ...lineForm,
+                              lineStops: lineForm.lineStops.filter(
+                                (_, i) => i !== idx,
+                              ),
+                            })
+                          }
+                          className="text-red-500 font-bold"
+                        >
+                          Retirer
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <select
                     id="addStopSelect"
                     defaultValue=""
-                    className="flex-1 bg-white p-2 rounded-lg text-xs border outline-none"
+                    className="w-full bg-[#EAEAEA] p-2.5 rounded-lg text-sm outline-none"
                   >
                     <option value="" disabled>
                       Sélectionner un arrêt à insérer...
@@ -270,7 +270,6 @@ export default function LineForm({
               />
             </div>
 
-            
             <div className="flex-1 p-4">
               {lineForm.lineStops.length > 1 && (
                 <div className="w-full h-full rounded-xl overflow-hidden border border-gray-200">

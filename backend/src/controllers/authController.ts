@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 const userService = new UserService();
 
 export class AuthController {
-  // POST /api/auth/login
   async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
@@ -41,7 +40,7 @@ export class AuthController {
           .json({ success: false, error: "Identifiants incorrects." });
       }
 
-      // 1. Génération du Token JWT
+      
       const secret = process.env.JWT_SECRET || "default_secret";
       const token = jwt.sign(
         {
@@ -50,6 +49,7 @@ export class AuthController {
           email: user.email,
           username: user.username,
           discriminator: (user as any).discriminator,
+          photo: user.photo
         },
         process.env.JWT_SECRET!,
         { expiresIn: "30d" },
@@ -67,7 +67,7 @@ export class AuthController {
       return res.status(200).json({
         success: true,
         message: "Connexion réussie",
-        token, // utilisé par l'application mobile
+        token,
         user: userPublicProfile,
       });
     } catch (error: any) {

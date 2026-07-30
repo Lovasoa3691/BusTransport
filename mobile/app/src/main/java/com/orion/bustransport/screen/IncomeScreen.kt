@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.orion.bustransport.network.Ticket
+import com.orion.bustransport.utils.formatAmount
 
 data class TicketScanned(
     val id: String,
@@ -33,16 +35,16 @@ data class TicketScanned(
 fun RevenueScreen(
     totalTicketsScanned: Int,
     ticketPriceMGA: Int,
-    tickets: List<TicketScanned>
+    tickets: List<Ticket>
 ) {
     val totalRevenue = totalTicketsScanned * ticketPriceMGA
 
     // Thème de couleurs unifié
     val tealBackground = Color(0xFFF3F7F9)
-    val darkBlue = Color(0xFF19193E)
+    val darkBlue = Color(0xFF4CAF50)
     val accentTeal = Color(0xFF00B29A)
     val cardBackground = Color.White
-    val textMuted = Color(0xFF757575)
+    val textMuted = Color(0xFF343434)
 
     LazyColumn(
         modifier = Modifier
@@ -51,14 +53,13 @@ fun RevenueScreen(
         contentPadding = PaddingValues(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Titre Principal de l'Écran
         item {
             Column(modifier = Modifier.padding(bottom = 8.dp)) {
                 Text(
                     text = "Mes Revenus du Jour",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = darkBlue
+                    color = textMuted
                 )
                 Text(
                     text = "Suivi en direct de votre activité de transport",
@@ -68,7 +69,6 @@ fun RevenueScreen(
             }
         }
 
-        // 2. Carte Principale - Recette Totale (Style Carte Bancaire / Premium)
         item {
             Card(
                 shape = RoundedCornerShape(24.dp),
@@ -79,7 +79,7 @@ fun RevenueScreen(
                     modifier = Modifier
                         .background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(darkBlue, Color(0xFF3B3B98))
+                                colors = listOf(darkBlue, Color(0xFF009688))
                             )
                         )
                         .padding(24.dp)
@@ -108,7 +108,7 @@ fun RevenueScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "$totalRevenue MGA",
+                            text = "${formatAmount(totalRevenue)} MGA",
                             color = Color.White,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Black
@@ -134,7 +134,6 @@ fun RevenueScreen(
             }
         }
 
-        // 3. Grille de Détails (Statistiques)
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -178,7 +177,6 @@ fun RevenueScreen(
                     }
                 }
 
-                // Prix Unitaire
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
@@ -218,7 +216,6 @@ fun RevenueScreen(
             }
         }
 
-        // 4. Sous-Titre Historique
         item {
             Text(
                 text = "Historique des scans",
@@ -277,28 +274,26 @@ fun RevenueScreen(
 
                         Spacer(modifier = Modifier.width(16.dp))
 
-                        // Infos principales du ticket
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = ticket.num,
+                                text = ticket.num_ticket,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = darkBlue
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "ID: ${ticket.id}",
+                                text = "ID: ${ticket.id_ticket}",
                                 fontSize = 11.sp,
                                 color = textMuted
                             )
                             Text(
-                                text = "Scanné le : ${ticket.validation}",
+                                text = "Scanné le : ${ticket.used_at}",
                                 fontSize = 11.sp,
                                 color = textMuted
                             )
                         }
 
-                        // Prix à droite
                         Text(
                             text = "${ticket.price} MGA",
                             fontWeight = FontWeight.ExtraBold,
@@ -306,35 +301,6 @@ fun RevenueScreen(
                             color = darkBlue
                         )
                     }
-                }
-            }
-        }
-
-        // 6. Message DevOps / Traçabilité tout en bas
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F0FE)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = Color(0xFF1A73E8),
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Ces données sont synchronisées en temps réel avec le tableau de bord administratif de la coopérative.",
-                        fontSize = 11.sp,
-                        color = Color(0xFF1A73E8),
-                        lineHeight = 16.sp
-                    )
                 }
             }
         }

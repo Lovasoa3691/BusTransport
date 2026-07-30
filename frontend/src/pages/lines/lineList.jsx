@@ -7,6 +7,7 @@ import Pagination from "../../components/common/pagination";
 import axios from "axios";
 import LineForm from "./lineForm";
 import api from "../../hooks/api";
+import Swal from "sweetalert2";
 
 export default function LineList({ isModalOpen, setIsModalOpen }) {
   const [subTab, setSubTab] = useState("lines");
@@ -16,24 +17,7 @@ export default function LineList({ isModalOpen, setIsModalOpen }) {
   const [totalPages, setTotalPages] = useState(1);
 
   const [stops, setStops] = useState([]);
-  const [buses, setBuses] = useState([
-    {
-      id_bus: 1,
-      bus_name: "Bus 1",
-      registration: "1234-AB",
-      capacity: 50,
-      status_bus: "Active",
-      image: null,
-    },
-    {
-      id_bus: 2,
-      bus_name: "Bus 2",
-      registration: "5678-CD",
-      capacity: 40,
-      status_bus: "Inactive",
-      image: null,
-    },
-  ]);
+  const [buses, setBuses] = useState([]);
 
   const fetchLines = async (page = 1) => {
     const response = await axios.get(`/api/lines?page=${page}&limit=10`);
@@ -46,7 +30,6 @@ export default function LineList({ isModalOpen, setIsModalOpen }) {
   const getStops = async () => {
     try {
       const response = await api.get("/stops");
-      console.log("Réponse de l'API :", response.data.data);
       if (response.data && response.data.data) {
         setStops(response.data.data);
       } else {
@@ -60,17 +43,36 @@ export default function LineList({ isModalOpen, setIsModalOpen }) {
   const getBuses = async () => {
     try {
       const response = await api.get("/buses");
-      console.log("Réponse de l'API :", response.data.data);
       setBuses(response.data.data);
     } catch (error) {
       console.error("Erreur lors de la récupération des bus :", error);
     }
   };
 
+  const getAllLines = async () => {
+    try {
+      const response = await api.get("/lines");
+      if (response.data.success) {
+        setLines(response.data.data);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Erreur",
+          text: response.data.error,
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des lignes du bus :",
+        error,
+      );
+    }
+  };
+
   useEffect(() => {
     getStops();
-    // getBuses();
-    console.log("Stops fetched:", stops);
+    getBuses();
+    getAllLines();
   }, []);
 
   // useEffect(() => {
@@ -78,47 +80,47 @@ export default function LineList({ isModalOpen, setIsModalOpen }) {
   // }, [currentPage]);
 
   const [lines, setLines] = useState([
-    {
-      id_line: 1,
-      line_name: "Ligne 4",
-      description: "Trajet direct Université",
-      price: 600,
-      bus_id: 1,
-      route_path: [
-        [-21.443, 47.113],
-        [-21.451, 47.101],
-        [-21.459, 47.089],
-      ],
-      lineStops: [
-        {
-          order: 1,
-          stop: {
-            id_stop: 1,
-            name_stop: "Terminus Andrainjato",
-            latitude: "-21.4430",
-            longitude: "47.1130",
-          },
-        },
-        {
-          order: 2,
-          stop: {
-            id_stop: 2,
-            name_stop: "Arrêt Mahazengy",
-            latitude: "-21.4510",
-            longitude: "47.1010",
-          },
-        },
-        {
-          order: 3,
-          stop: {
-            id_stop: 3,
-            name_stop: "Terminus Anjoma",
-            latitude: "-21.4590",
-            longitude: "47.0890",
-          },
-        },
-      ],
-    },
+    // {
+    //   id_line: 1,
+    //   line_name: "Ligne 1",
+    //   description: "Trajet direct Université",
+    //   price: 600,
+    //   bus_id: 1,
+    //   route_path: [
+    //     [-21.443, 47.113],
+    //     [-21.451, 47.101],
+    //     [-21.459, 47.089],
+    //   ],
+    //   lineStops: [
+    //     {
+    //       order: 1,
+    //       stop: {
+    //         id_stop: 1,
+    //         name_stop: "Terminus Andrainjato",
+    //         latitude: "-21.4430",
+    //         longitude: "47.1130",
+    //       },
+    //     },
+    //     {
+    //       order: 2,
+    //       stop: {
+    //         id_stop: 2,
+    //         name_stop: "Arrêt Mahazengy",
+    //         latitude: "-21.4510",
+    //         longitude: "47.1010",
+    //       },
+    //     },
+    //     {
+    //       order: 3,
+    //       stop: {
+    //         id_stop: 3,
+    //         name_stop: "Terminus Anjoma",
+    //         latitude: "-21.4590",
+    //         longitude: "47.0890",
+    //       },
+    //     },
+    //   ],
+    // },
   ]);
 
   const [lineForm, setLineForm] = useState({
@@ -130,9 +132,38 @@ export default function LineList({ isModalOpen, setIsModalOpen }) {
     viaPoints: [],
   });
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log("Formulaire soumis :", lineForm);
+
+    console.log("Data Retrieve: ", lineForm);
+
+    api
+      .post("/lines", lineForm)
+      .then((response) => {
+        if (response.data.success) {
+          console.log("Reponse: ", response.data);
+          Swal.fire({
+            icon: "success",
+            title: "Succès",
+            text: response.data.message || "Lignes enregistrés avec succès.",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Erreur",
+            text: response.data.error,
+          });
+        }
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: "Erreur",
+          text:
+            error.message ||
+            "Une erreur est survenue lors de la génération des tickets.",
+        });
+      });
 
     setLineForm({
       line_name: "",
@@ -171,7 +202,11 @@ export default function LineList({ isModalOpen, setIsModalOpen }) {
               {line.lineStops?.length || 0} arrêts
             </td>
             <td className="px-6 py-4 font-bold text-gray-800">
-              {line.price} Ar
+              {line.price.toLocaleString("fr-FR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+              Ar
             </td>
             <td className="px-6 py-4">
               <button

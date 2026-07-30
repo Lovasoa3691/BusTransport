@@ -160,19 +160,16 @@ fun ScanScreen(
                 }
             }
 
-            // Bouton de Scan Circulaire Premium à Double Anneau
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(220.dp)
             ) {
-                // Anneau extérieur décoratif pulsé/pointillé simulé
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .border(2.dp, accentTeal.copy(alpha = 0.3f), CircleShape)
                         .padding(12.dp)
                 ) {
-                    // Anneau intermédiaire
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -181,7 +178,6 @@ fun ScanScreen(
                     )
                 }
 
-                // Bouton principal cliquable au centre
                 Button(
                     onClick = {
                         scanner.startScan()
@@ -224,33 +220,6 @@ fun ScanScreen(
                         )
                     }
                 }
-            }
-        }
-
-        // 3. PIED DE PAGE : Note Technique DevOps
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F0FE)),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color(0xFF1A73E8),
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "Application connectée en temps réel au serveur de contrôle Express.js",
-                    fontSize = 11.sp,
-                    color = Color(0xFF1A73E8),
-                    lineHeight = 16.sp,
-                    modifier = Modifier.weight(1f)
-                )
             }
         }
     }

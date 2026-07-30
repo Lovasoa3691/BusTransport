@@ -12,6 +12,13 @@ router.get(
   ticketController.getAllTickets,
 );
 
+router.get(
+  "/tickets/driver",
+  verifyToken,
+  requireRole("Driver"),
+  ticketController.getTicketByDriver,
+);
+
 router.post(
   "/tickets/generate",
   verifyToken,

@@ -11,7 +11,6 @@ import L from "leaflet";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import api from "../hooks/api";
 let DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
@@ -30,7 +29,35 @@ const busIcon = new L.Icon({
 export default function TrackingContent() {
   const fianaCenter = [-21.4526, 47.0857];
 
-  const [lines, setLines] = useState([]);
+  const [lines, setLines] = useState([
+    {
+      id_line: "L1",
+      name_line: "Ligne 1 : Andrainjato ⇄ Mahazengy",
+      color: "#3B3B98",
+
+      waypoints: [
+        [-21.4585, 47.1002],
+        [-21.4552, 47.0918],
+        [-21.4491, 47.0811],
+        [-21.4422, 47.0722],
+        [-21.4468, 47.0761],
+        [-21.4532, 47.0868],
+      ],
+      route_path: [],
+    },
+    {
+      id_line: "L2",
+      name_line: "Ligne 2 : Tambohobe ⇄ Beravina",
+      color: "#E74C3C",
+      waypoints: [
+        [-21.4395, 47.065],
+        [-21.445, 47.071],
+        [-21.451, 47.0745],
+        [-21.462, 47.0795],
+      ],
+      route_path: [],
+    },
+  ]);
 
   const [stops] = useState([
     {
@@ -95,33 +122,37 @@ export default function TrackingContent() {
 
   const [selectedLine, setSelectedLine] = useState("");
 
-  const fetchLines = async () => {
-    const response = await api.get("/lines");
-
-    const formattedLines = response.data.data.map((line) => ({
-      id_line: line.id_line,
-      name_line: line.line_name,
-      description: line.description,
-      price: line.price,
-
-      color: "#3B3B98",
-
-      route_path: line.road_path,
-
-      stops: line.lineStops.map((item) => ({
-        id_stop: item.stop.id_stop,
-        name: item.stop.name_stop,
-        coords: [Number(item.stop.latitude), Number(item.stop.longitude)],
-      })),
-
-      bus: line.bus,
-    }));
-
-    setLines(formattedLines);
-  };
-
   useEffect(() => {
-    fetchLines();
+    const fetchRoutes = async () => {
+      const updatedLines = await Promise.all(
+        lines.map(async (line) => {
+          try {
+            const osrmCoords = line.waypoints
+              .map((coord) => `${coord[1]},${coord[0]}`)
+              .join(";");
+
+            const response = await fetch(
+              `http://router.project-osrm.org/route/v1/driving/${osrmCoords}?overview=full&geometries=geojson`,
+            );
+            const data = await response.json();
+
+            if (data.routes && data.routes.length > 0) {
+              const calculatedPath = data.routes[0].geometry.coordinates.map(
+                (coord) => [coord[1], coord[0]],
+              );
+              return { ...line, route_path: calculatedPath };
+            }
+          } catch (error) {
+            console.error(`Erreur OSRM pour la ligne ${line.id_line}:`, error);
+          }
+
+          return { ...line, route_path: line.waypoints };
+        }),
+      );
+      setLines(updatedLines);
+    };
+
+    fetchRoutes();
   }, []);
 
   return (
@@ -170,35 +201,50 @@ export default function TrackingContent() {
 
             {lines
               .filter(
-                (line) =>
-                  selectedLine === "" || line.id_line === Number(selectedLine),
+                (line) => selectedLine === "" || line.id_line === selectedLine,
               )
               .map((line) => (
                 <Polyline
                   key={line.id_line}
-                  positions={line.route_path}
-                  pathOptions={{
-                    color: line.color,
-                    weight: 5,
-                    opacity: 0.85,
-                    lineCap: "round",
-                    lineJoin: "round",
-                  }}
+                  positions={
+                    line.route_path.length > 0
+                      ? line.route_path
+                      : line.waypoints
+                  }
+                  pathOptions={{ color: line.color, weight: 5, opacity: 0.85 }}
                 />
               ))}
 
-            {lines.map((line) =>
-              line.stops.map((stop) => (
+            {stops
+              .filter(
+                (stop) => selectedLine === "" || stop.line === selectedLine,
+              )
+              .map((stop) => (
                 <Marker key={stop.id_stop} position={stop.coords}>
-                  <Popup>{stop.name}</Popup>
+                  <Popup>
+                    <div className="text-xs space-y-1">
+                      <div className="font-bold text-gray-900 flex items-center">
+                        <MapPin size={12} className="text-red-500 mr-1" />
+                        {stop.name}
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-mono">
+                        ID Arrêt: #{stop.id_stop}
+                      </div>
+                      <div className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 inline-block font-bold">
+                        Ligne : {stop.line}
+                      </div>
+                    </div>
+                  </Popup>
                 </Marker>
-              )),
-            )}
+              ))}
 
-            {/* {lines
+            {buses
+              .filter(
+                (bus) => selectedLine === "" || bus.line_id === selectedLine,
+              )
               .map((bus) => (
                 <Marker
-                  key={bus.bus.id_bus}
+                  key={bus.id_bus}
                   position={bus.current_coords}
                   icon={busIcon}
                 >
@@ -223,7 +269,7 @@ export default function TrackingContent() {
                     </div>
                   </Popup>
                 </Marker>
-              ))} */}
+              ))}
           </MapContainer>
         </div>
 
@@ -244,7 +290,7 @@ export default function TrackingContent() {
                     style={{ backgroundColor: line.color }}
                   ></span>
                   <span className="truncate text-gray-700">
-                    {line.line_name}
+                    {line.name_line}
                   </span>
                 </button>
               ))}
