@@ -38,20 +38,16 @@ export class TicketService {
     endOfDay.setHours(23, 59, 59, 999);
 
     const tickets = await prisma.ticket.findMany({
-      // where: {
-      //   driver_id: userId,
-      //   created_at: {
-      //     gte: startOfDay,
-      //     lte: endOfDay,
-      //   },
-      //   status_ticket: "USED",
-      // },
-      // include: {
-      //   bus: true,
-      //   incomes: true,
-      // },
+      where: {
+        driver_id: userId,
+        used_at: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        status_ticket: "USED",
+      },
       orderBy: {
-        created_at: "desc",
+        used_at: "desc",
       },
     });
 
@@ -90,14 +86,14 @@ export class TicketService {
   async scanAndValidateTicket(qrCode: string, driverId: number) {
     const bus = await prisma.bus.findFirst({
       where: {
-        driver_id: driverId,
-        status_bus: "Actif",
+        driver_id: parseInt(driverId as any),
+        status_bus: "Active",
       },
     });
 
     if (!bus) {
       throw new Error(
-        "Action impossible : aucun bus actif n'est assigné à votre compte Chauffeur.",
+        "Action impossible : aucun bus actif n'est assigné à votre compte.",
       );
     }
 
@@ -105,12 +101,12 @@ export class TicketService {
 
     const ticket = await prisma.ticket.findUnique({
       where: { qr_code: qrCode },
-      include: { stop: true, bus: true, driver: true },
+      // include: { stop: true, bus: true, driver: true },
     });
 
     if (!ticket) throw new Error("QR Code invalide ou contrefait.");
     if (ticket.status_ticket === "USED")
-      throw new Error("Ce ticket a déjà été scanné et utilisé.");
+      throw new Error("Ce ticket a déjà été utilisé.");
     if (ticket.status_ticket === "CANCELED")
       throw new Error("Ce ticket a été annulé.");
 

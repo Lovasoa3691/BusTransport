@@ -174,7 +174,7 @@ export default function TicketList() {
           )}
 
           <button
-            onClick={handlePrint}
+            onClick={handleGenerateTickets}
             className="flex items-center space-x-2 bg-[#3B3B98] hover:bg-[#19193E] text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors"
           >
             <Plus size={16} />

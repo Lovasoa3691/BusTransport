@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { BusService } from "../services/busService";
+import { prisma } from "../client";
 
 const busService = new BusService();
 
@@ -24,6 +25,12 @@ export class BusController {
       console.log("Données du bus à créer:", busData);
 
       const bus = await busService.createBus(busData);
+      await prisma.userControlledBus.create({
+        data: {
+          admin_id: parseInt(driver_id),
+          bus_id: bus.id_bus,
+        },
+      });
 
       return res.status(201).json({
         success: true,

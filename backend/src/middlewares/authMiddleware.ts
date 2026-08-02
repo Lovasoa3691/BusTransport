@@ -43,7 +43,7 @@ export const verifyToken = (
   }
 };
 
-// Middleware optionnel pour filtrer par Rôle (ex: Autoriser uniquement l'Admin)
+
 export const requireRole = (role: string) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user || req.user.role !== role) {

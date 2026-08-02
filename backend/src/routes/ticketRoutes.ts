@@ -26,6 +26,11 @@ router.post(
   ticketController.generateBatch,
 );
 
-router.post("/tickets/scan", verifyToken, ticketController.scanTicket);
+router.post(
+  "/tickets/scan",
+  verifyToken,
+  requireRole("Driver"),
+  ticketController.scanTicket,
+);
 
 export default router;

@@ -8,14 +8,14 @@ export default function SubTab({ subTab, setSubTab, setIsModalOpen }) {
       icon: Bus,
     },
     {
-      key: "lines",
-      label: "Lignes",
-      icon: Route,
-    },
-    {
       key: "stops",
       label: "Arrêts",
       icon: MapPin,
+    },
+    {
+      key: "lines",
+      label: "Lignes",
+      icon: Route,
     },
   ];
   return (

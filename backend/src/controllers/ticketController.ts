@@ -31,9 +31,19 @@ export class TicketController {
 
   async getTicketByDriver(req: AuthenticatedRequest, res: Response) {
     try {
-      const id = req.query.id as string;
-      console.log("Identifiant: ", req.user?.id_user);
-      const result = await ticketService.getTicketByDriver(parseInt(id));
+      const id = req.user?.id_user;
+
+      console.log("req.user =", req.user);
+      console.log("id =", req.user?.id_user);
+
+      // if (typeof id !== "number" || Number.isNaN(id)) {
+      //   return res.status(401).json({
+      //     success: false,
+      //     error: "Utilisateur non authentifié.",
+      //   });
+      // }
+
+      const result = await ticketService.getTicketByDriver(parseInt(id as any));
       res.status(200).json({
         success: true,
         ...result,
@@ -102,7 +112,7 @@ export class TicketController {
 
       res.status(200).json({
         success: true,
-        message: "TICKET VALIDE - Recette enregistrée.",
+        message: "Ticket Validé.",
         data: {
           ticket_number: result.ticket.num_ticket,
           amount: result.income.amount,

@@ -18,11 +18,11 @@ export default function BusesContent() {
       {subTab === "buses" && (
         <BusList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
       )}
-      {subTab === "lines" && (
-        <LineList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-      )}
       {subTab === "stops" && (
         <StopList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      )}
+      {subTab === "lines" && (
+        <LineList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
       )}
     </div>
   );
